@@ -1,0 +1,49 @@
+@page
+@model RememberMe.Pages.SettingsModel
+@{
+    ViewData["Active"] = "settings";
+    ViewData["Title"] = "Settings";
+}
+
+<h2 style="margin:0 0 20px;">Settings</h2>
+
+<div class="dash-grid">
+    <div>
+        <div class="card">
+            <div class="card-eyebrow">Profile</div>
+            <div class="section-title" style="font-size:14px; margin-top:4px;">Username</div>
+            <div class="field">
+                <input type="text" id="profile-username-input" class="inline-input" style="width:100%;" placeholder="Username">
+            </div>
+            <button class="btn btn-secondary btn-sm" id="save-username-btn">Save username</button>
+            <div class="error-msg" id="username-error"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-eyebrow">Change password</div>
+            <div class="field">
+                <input type="password" id="current-password-input" class="inline-input" style="width:100%; margin-bottom:10px;" placeholder="Current password">
+            </div>
+            <div class="field">
+                <input type="password" id="new-password-input" class="inline-input" style="width:100%;" placeholder="New password (at least 8 characters)">
+            </div>
+            <button class="btn btn-secondary btn-sm" id="save-password-btn">Update password</button>
+            <div class="error-msg" id="password-error"></div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <div class="card-eyebrow">Background colour</div>
+            <div id="theme-swatches" class="theme-swatch-row"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-eyebrow">Mode</div>
+            <div class="toggle-row">
+                <div class="toggle-opt" id="mode-light-btn">☀️ Light</div>
+                <div class="toggle-opt" id="mode-dark-btn">🌙 Dark</div>
+            </div>
+        </div>
+    </div>
+</div>

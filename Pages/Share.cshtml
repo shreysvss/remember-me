@@ -1,0 +1,17 @@
+@page "{token}"
+@model RememberMe.Pages.ShareModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Shared occasion";
+}
+<div class="auth-card">
+    <div class="brand" style="justify-content:center; margin-bottom:6px;">
+        <div class="candle"><div class="flame-glow"></div><div class="flame"></div><div class="wax"></div></div>
+        <div class="brand-word">Remember Me</div>
+    </div>
+    <div class="tagline">someone shared something special with you</div>
+    <div id="share-content"><div class="empty-note">Loading…</div></div>
+</div>
+<script>
+    window.SHARE_TOKEN = @Html.Raw(JsonSerializer.Serialize(Model.Token));
+</script>

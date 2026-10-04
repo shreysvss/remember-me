@@ -1,0 +1,28 @@
+@page
+@model RememberMe.Pages.Account.RegisterModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Create account";
+}
+<div class="auth-card">
+    <div class="brand" style="justify-content:center; margin-bottom:6px;">
+        <div class="candle"><div class="flame-glow"></div><div class="flame"></div><div class="wax"></div></div>
+        <div class="brand-word">Remember Me</div>
+    </div>
+    <div class="tagline">never miss a moment worth celebrating</div>
+
+    <form method="post">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div class="field">
+            <label>Choose a username</label>
+            <input asp-for="Username" type="text" placeholder="e.g. thandi_m" autocomplete="username" />
+        </div>
+        <div class="field">
+            <label>Choose a password</label>
+            <input asp-for="Password" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+        </div>
+        <div class="error-msg">@Model.ErrorMessage</div>
+        <button type="submit" class="btn btn-secondary btn-block">Create account</button>
+    </form>
+    <div class="link-swap">Already have one? <a href="/Account/Login?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")">Log in</a></div>
+</div>

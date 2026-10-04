@@ -1,0 +1,17 @@
+@page
+@model RememberMe.Pages.ErrorModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Something went wrong";
+}
+<div class="auth-card">
+    <div class="brand" style="justify-content:center; margin-bottom:6px;">
+        <div class="candle"><div class="flame-glow"></div><div class="flame"></div><div class="wax"></div></div>
+        <div class="brand-word">Remember Me</div>
+    </div>
+    <div class="tagline">something went wrong on our end</div>
+    <div class="empty-note" style="margin-bottom:16px;">
+        That wasn't supposed to happen. Nothing on your account was affected, try going back and trying again.
+    </div>
+    <a class="btn btn-primary btn-block" href="/Index">Back to my dashboard</a>
+</div>

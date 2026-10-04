@@ -1,0 +1,28 @@
+@page
+@model RememberMe.Pages.CalendarModel
+@{
+    ViewData["Active"] = "calendar";
+    ViewData["Title"] = "Calendar";
+}
+
+<div class="cal-header">
+    <div class="cal-toggle">
+        <button data-mode="week">Week</button>
+        <button data-mode="month">Month</button>
+        <button data-mode="year">Year</button>
+    </div>
+    <div class="cal-title-group">
+        <div class="cal-nav">
+            <button class="btn-icon btn-ghost" id="cal-prev" style="border-radius:12px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#ff4f9a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+        <div class="cal-month" id="cal-month-label">Month</div>
+        <div class="cal-nav">
+            <button class="btn-icon btn-ghost" id="cal-next" style="border-radius:12px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ff4f9a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+<div id="cal-body"><div class="empty-note">Loading…</div></div>

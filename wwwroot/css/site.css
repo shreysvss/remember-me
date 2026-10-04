@@ -314,3 +314,74 @@ button{ font-family:inherit; }
 @keyframes toast-out{ to{ transform:translateX(30px); opacity:0; } }
 
 ::placeholder{ color:#d9a9c4; font-weight:600; }
+/* ---------------- sign in with Google ---------------- */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 12px;
+    color: var(--plum-soft);
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+    .auth-divider::before, .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1.5px;
+        background: var(--accent-border);
+        border-radius: 2px;
+    }
+
+.btn-google {
+    background: #ffffff;
+    color: #1f1f1f;
+    border: 1.5px solid #dadce0;
+}
+
+    .btn-google:hover {
+        background: #f6f7f8;
+    }
+
+html[data-mode="dark"] .btn-google {
+    background: #131314;
+    color: #e3e3e3;
+    border-color: #8e918f;
+}
+/* ---------------- show / hide password ---------------- */
+.password-wrap {
+    position: relative;
+}
+
+    .password-wrap input {
+        padding-right: 48px;
+    }
+
+.pw-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--plum-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+    .pw-toggle:hover {
+        color: var(--accent-deep);
+    }
+
+    .pw-toggle:focus-visible {
+        outline: 2px solid var(--accent);
+    }
+/* hide the candle logo */
+.candle{ display:none; }
+
+/* hide the candle logo */
+.candle{ display:none; }

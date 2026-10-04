@@ -69,9 +69,14 @@ public class AccountApiController : ControllerBase
         var user = _db.Users.First(x => x.Id == CurrentUserId);
         var hasher = new PasswordHasher<AppUser>();
 
-        var result = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.CurrentPassword ?? string.Empty);
-        if (result == PasswordVerificationResult.Failed)
-            return BadRequest(new { message = "Your current password is incorrect." });
+        // People who signed up with Google don't have a password yet, so they can set
+        // one here without needing a current password. Everyone else has to confirm theirs.
+        if (!string.IsNullOrEmpty(user.PasswordHash))
+        {
+            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.CurrentPassword ?? string.Empty);
+            if (result == PasswordVerificationResult.Failed)
+                return BadRequest(new { message = "Your current password is incorrect." });
+        }
 
         user.PasswordHash = hasher.HashPassword(user, dto.NewPassword);
         _db.SaveChanges();

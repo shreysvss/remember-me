@@ -6,6 +6,11 @@ public class AppUser
     public string Username { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
 
+    // Set when someone signs up or logs in with Google. This is Google's own id for
+    // that person, which never changes even if they change their name or email.
+    // People who signed up with Google have an empty PasswordHash until they set one.
+    public string? GoogleId { get; set; }
+
     // Brute-force protection: after too many wrong passwords in a row, the
     // account is temporarily locked regardless of whether the next guess is right.
     public int FailedLoginAttempts { get; set; } = 0;

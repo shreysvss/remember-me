@@ -28,10 +28,25 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = 429;
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=occasions.db"));
+// On your computer this uses the SQLite file like before. When the app is live,
+// Render gives it a DATABASE_URL pointing at Neon, and it uses Postgres instead.
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+if (!string.IsNullOrWhiteSpace(databaseUrl))
+{
+    // Lets Postgres accept dates the same way SQLite did, so nothing else has to change.
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(ToNpgsqlConnectionString(databaseUrl)));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=occasions.db"));
+}
+
+var authBuilder = builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
@@ -44,16 +59,54 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;                // blocks cross-site POST/PUT/DELETE forgery
     });
 
+// "Continue with Google" only switches on when the Google keys are set up. On your computer
+// they come from dotnet user-secrets, and on Render they come from environment variables.
+// If they're missing, the app still runs fine, the Google button just doesn't show.
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    authBuilder
+        // A short lived cookie that only holds who Google said they are, for the few
+        // seconds between coming back from Google and being logged into Remember Me.
+        .AddCookie("External", options =>
+        {
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        })
+        .AddGoogle(options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+            options.SignInScheme = "External";
+        });
+}
+
 builder.Services.AddAuthorization();
 builder.Services.AddHostedService<OccasionNotificationService>();
 
 var app = builder.Build();
 
-// Creates occasions.db automatically on first run - no manual migration step needed.
+// Creates the database tables automatically on first run (SQLite or Postgres), no manual migration step needed.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+
+    // EnsureCreated only builds a brand new database, it never adds new columns to one
+    // that already exists. This adds the GoogleId column to older databases (like the
+    // occasions.db already on your computer) so your existing data keeps working.
+    try
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE \"Users\" ADD COLUMN \"GoogleId\" TEXT NULL");
+    }
+    catch
+    {
+        // The column is already there, nothing to do.
+    }
 }
 
 if (!app.Environment.IsDevelopment())
@@ -98,3 +151,24 @@ app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
+
+// Neon gives you a link like postgresql://user:pass@host/dbname?sslmode=require
+// but the .NET Postgres driver wants Host=...;Username=... style, so this converts it.
+static string ToNpgsqlConnectionString(string url)
+{
+    if (!url.StartsWith("postgres")) return url;
+
+    var uri = new Uri(url);
+    var userInfo = uri.UserInfo.Split(':', 2);
+
+    var csb = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port > 0 ? uri.Port : 5432,
+        Username = Uri.UnescapeDataString(userInfo[0]),
+        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "",
+        Database = uri.AbsolutePath.TrimStart('/'),
+        SslMode = Npgsql.SslMode.Require
+    };
+    return csb.ConnectionString;
+}

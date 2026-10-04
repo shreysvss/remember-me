@@ -17,6 +17,10 @@ public class AppDbContext : DbContext
             .HasIndex(u => u.Username)
             .IsUnique();
 
+        modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.GoogleId)
+            .IsUnique();
+
         modelBuilder.Entity<Occasion>()
             .HasOne(b => b.User)
             .WithMany(u => u.Occasions)

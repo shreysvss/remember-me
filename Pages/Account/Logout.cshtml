@@ -1,2 +1,72 @@
-@page
-@model RememberMe.Pages.Account.LogoutModel
+@using RememberMe.Data
+@inject AppDbContext Db
+@{
+    var currentUsername = User.Identity?.Name;
+    var currentUser = !string.IsNullOrEmpty(currentUsername) ? Db.Users.FirstOrDefault(u => u.Username == currentUsername) : null;
+    var themeColor = currentUser?.ThemeColor ?? "pink";
+    var themeMode = currentUser?.ThemeMode ?? "light";
+}
+<!DOCTYPE html>
+<html lang="en" data-theme="@themeColor" data-mode="@themeMode">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · Remember Me</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <div id="toast-stack"></div>
+
+    @if (TempData["Flash"] != null)
+    {
+        <script>
+            window.addEventListener('DOMContentLoaded', function () {
+                showToast(@Html.Raw(JsonSerializer.Serialize(TempData["Flash"])), @Html.Raw(JsonSerializer.Serialize(TempData["FlashType"] ?? "success")));
+            });
+        </script>
+    }
+
+    <div id="site-header" class="active">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="candle"><div class="flame-glow"></div><div class="flame"></div><div class="wax"></div></div>
+                <div class="brand-word">Remember Me</div>
+            </div>
+            <div class="header-nav">
+                <a class="nav-link @(ViewData["Active"] as string == "home" ? "active-tab" : "")" href="/Index">Home</a>
+                <a class="nav-link @(ViewData["Active"] as string == "calendar" ? "active-tab" : "")" href="/Calendar">Calendar</a>
+                <a class="nav-link @(ViewData["Active"] as string == "settings" ? "active-tab" : "")" href="/Settings">Settings</a>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-ghost btn-sm" id="header-add-btn">+ Add occasion</button>
+                <div style="position:relative;">
+                    <button class="btn-icon btn-ghost" id="notif-bell-btn" title="Reminders" style="border-radius:12px; position:relative;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="#ff4f9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /><path d="M13.73 21a2 2 0 01-3.46 0" stroke="#ff4f9a" stroke-width="2" stroke-linecap="round" /></svg>
+                        <span id="notif-badge" style="display:none;"></span>
+                    </button>
+                    <div id="notif-panel"></div>
+                </div>
+                <form method="post" asp-page="/Account/Logout">
+                    <button type="submit" class="btn-icon btn-ghost" title="Log out" style="border-radius:12px;">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#ff4f9a" stroke-width="2.2" stroke-linecap="round" /><path d="M16 17l5-5-5-5M21 12H9" stroke="#ff4f9a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content">
+        @RenderBody()
+    </div>
+
+    <div class="fab" id="fab-add" title="Add occasion">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="3" stroke-linecap="round" /></svg>
+    </div>
+
+    <div id="overlay"><div id="modal"></div></div>
+
+    <script src="~/js/site.js"></script>
+</body>
+</html>
